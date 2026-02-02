@@ -250,6 +250,47 @@
       font-weight:800;
       margin-top:8px;
     }
+
+/* ====== FIX ÔN TẬP: nền trắng + dễ nhìn ====== */
+.modal{
+  background: rgba(0,0,0,.35); /* nền tối nhẹ phía sau */
+}
+
+/* modalCard: bỏ nền trong suốt/gradient -> nền trắng */
+.modalCard{
+  background:#ffffff !important;
+  border-color: rgba(0,0,0,.15) !important;
+}
+
+/* chữ trong ôn tập chuyển sang đen */
+.modalTitle{ color:#111 !important; }
+#reviewMeta{ color:#444 !important; }
+
+/* từng khối bảng trong ôn tập nền trắng */
+.reviewBlock{
+  background:#ffffff !important;
+  border-color: rgba(0,0,0,.12) !important;
+}
+.reviewBlock h3{
+  color:#111 !important;
+}
+
+/* BỎ SỐ THỨ TỰ: list kiểu không số */
+.reviewList{
+  list-style: none !important;
+  padding-left: 0 !important;
+  margin: 0 !important;
+  color:#111 !important;
+  font-weight: 800 !important;
+  line-height: 1.6 !important;
+}
+.reviewList li{
+  padding: 2px 0;
+}
+.reviewHint{
+  color:#555 !important;
+}
+
   </style>
 </head>
 <body>
@@ -924,9 +965,9 @@
         blocks.push(`
           <div class="reviewBlock" style="margin:0">
             <h3>Bảng ${n}</h3>
-            <ol class="reviewList">
+            <ul class="reviewList">
               ${lines.map(x=>`<li>${escapeHtml(x)}</li>`).join('')}
-            </ol>
+            </ul>
             <div class="reviewHint">Nhìn – đọc – nhẩm – kiểm tra lại</div>
           </div>
         `);
@@ -937,8 +978,8 @@
     if(mode.key === 'mul') pushSection('Ôn tập BẢNG NHÂN', 'mul');
     else if(mode.key === 'div') pushSection('Ôn tập BẢNG CHIA', 'div');
     else{
-      pushSection('Ôn tập BẢNG NHÂN (hiện trước)', 'mul');
-      pushSection('Ôn tập BẢNG CHIA (hiện sau)', 'div');
+      pushSection('Ôn tập BẢNG NHÂN', 'mul');
+      pushSection('Ôn tập BẢNG CHIA', 'div');
     }
 
     reviewContent.innerHTML = blocks.join('');
