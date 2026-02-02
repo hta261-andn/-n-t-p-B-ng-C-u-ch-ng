@@ -106,7 +106,7 @@
       background: linear-gradient(90deg, rgba(91,124,250,.95), rgba(46,204,113,.85));
     }
 
-    .btns{display:flex; gap:10px; flex-wrap:wrap; margin-top:12px}
+    .btns{display:flex; gap:10px; flex-wrap:wrap; margin-top:10px}
     button{
       border:0; cursor:pointer; padding:10px 14px; border-radius:12px; font-weight:900;
       color:white; background:var(--btn2);
@@ -133,10 +133,7 @@
     .status.ok{ color:var(--ok); }
     .status.bad{ color:var(--bad); }
     .status.warn{ color:var(--warn); }
-.status.late{
-  color: #ffcc66; /* vàng nhạt – cùng tone QUÁ GIỜ */
-}
-
+    .status.late{ color: #ffcc66; }
 
     .keypad{
       margin-top:8px;
@@ -249,7 +246,6 @@
             <div class="bar"><div id="timeBar"></div></div>
             <div class="row" style="margin-top:8px; justify-content:flex-start">
               <div class="pill"><span>Đã làm:</span> <b id="countDone">0</b></div>
-              <!-- giữ ID cũ để ít đụng code, nhưng đổi nghĩa thành "Trong giờ" -->
               <div class="pill"><span>Trong giờ:</span> <b id="countScored">0</b></div>
               <div class="pill"><span>Đúng:</span> <b id="countOK">0</b></div>
               <div class="pill"><span>Sai:</span> <b id="countBad">0</b></div>
@@ -257,13 +253,6 @@
               <div class="pill"><span>Còn:</span> <b id="timeLeft">--:--</b></div>
             </div>
           </div>
-        </div>
-
-        <div class="btns">
-          <button class="primary" id="btnStart">Bắt đầu</button>
-          <button id="btnNext" disabled>Xác nhận (Enter)</button>
-          <button class="danger" id="btnStop" disabled>Kết thúc</button>
-          <button id="btnReset">Làm lại</button>
         </div>
 
         <div class="footerNote">
@@ -276,7 +265,6 @@
 
           <div class="row" style="justify-content:space-between; margin:10px 0">
             <div class="pill"><span>Tổng đã làm:</span> <b id="totalQ">0</b></div>
-            <!-- giữ ID cũ để ít đụng code, nhưng đổi nghĩa thành "Trong giờ" -->
             <div class="pill"><span>Trong giờ:</span> <b id="totalScored">0</b></div>
             <div class="pill"><span>Đúng:</span> <b id="totalOK">0</b></div>
             <div class="pill"><span>Tỷ lệ:</span> <b id="percent">0%</b></div>
@@ -309,11 +297,18 @@
           <div class="pill"><span>Câu (giới hạn):</span> <b id="qLeft">--</b></div>
         </div>
 
+        <!-- ✅ Cụm nút đã chuyển lên phía trên phép tính -->
+        <div class="btns">
+          <button class="primary" id="btnStart">Bắt đầu</button>
+          <button class="danger" id="btnStop" disabled>Kết thúc</button>
+          <button id="btnReset">Làm lại</button>
+        </div>
+
         <div class="problem" id="problem">Chọn bảng và nhấn “Bắt đầu”</div>
 
+        <!-- ✅ Bỏ nút "Xác nhận" -->
         <div class="answerRow">
           <input id="answer" type="number" inputmode="numeric" placeholder="Nhập kết quả…" disabled />
-          <button id="btnConfirm" class="primary" disabled>Xác nhận</button>
         </div>
 
         <div class="keypad" id="keypad" aria-label="Bàn phím số">
@@ -351,15 +346,13 @@
   const btnStart = document.getElementById('btnStart');
   const btnStop = document.getElementById('btnStop');
   const btnReset = document.getElementById('btnReset');
-  const btnNext = document.getElementById('btnNext');
-  const btnConfirm = document.getElementById('btnConfirm');
 
   const problemEl = document.getElementById('problem');
   const answerEl = document.getElementById('answer');
   const statusEl = document.getElementById('status');
 
   const countDoneEl = document.getElementById('countDone');
-  const countScoredEl = document.getElementById('countScored'); // giờ dùng cho "Trong giờ"
+  const countScoredEl = document.getElementById('countScored'); // "Trong giờ"
   const countOKEl = document.getElementById('countOK');
   const countBadEl = document.getElementById('countBad');
   const livePctEl = document.getElementById('livePct');
@@ -370,7 +363,7 @@
   const resultBox = document.getElementById('resultBox');
   const resultBody = document.getElementById('resultBody');
   const totalQEl = document.getElementById('totalQ');
-  const totalScoredEl = document.getElementById('totalScored'); // giờ dùng cho "Trong giờ"
+  const totalScoredEl = document.getElementById('totalScored'); // "Trong giờ"
   const totalOKEl = document.getElementById('totalOK');
   const percentEl = document.getElementById('percent');
   const finalMsgEl = document.getElementById('finalMsg');
@@ -428,7 +421,7 @@
   let history = [];
   let okCount = 0;      // đúng & trong giờ (hoặc không giới hạn)
   let badCount = 0;     // sai (bao gồm sai trong giờ + quá giờ)
-  let inTimeCount = 0;  // số câu "trong giờ" (nếu có giới hạn) — để thống kê
+  let inTimeCount = 0;  // số câu "trong giờ"
 
   // session timer
   let totalSeconds = 0;
@@ -539,8 +532,6 @@
     running = on;
     btnStart.disabled = on;
     btnStop.disabled = !on;
-    btnConfirm.disabled = !on;
-    btnNext.disabled = !on;
     answerEl.disabled = !on;
 
     tableItems.forEach(x => x.input.disabled = on);
@@ -625,32 +616,23 @@
       inLimit
     });
 
-    // thống kê "Trong giờ" (nếu có giới hạn), còn không giới hạn thì coi như luôn trong giờ
     if(inLimit) inTimeCount++;
 
-   if(okInTime){
-  okCount++;
-  beepOk();
-  showStatus('ĐÚNG!', 'ok');
-}else{
-  badCount++;
-
-  // Quá giờ nhưng trả lời ĐÚNG
-  if(limit > 0 && !inLimit && isCorrect){
-    showStatus('⏱️ Đúng (đã quá giờ)', 'late');
-
-  }
-  // Quá giờ và SAI
-  else if(limit > 0 && !inLimit){
-    showStatus('Sai', 'bad');
-  }
-  // Trong giờ nhưng SAI
-  else{
-    beepBad();
-    showStatus('SAI!', 'bad');
-  }
-}
-
+    if(okInTime){
+      okCount++;
+      beepOk();
+      showStatus('ĐÚNG!', 'ok');
+    }else{
+      badCount++;
+      if(limit > 0 && !inLimit && isCorrect){
+        showStatus('⏱️ Đúng (đã quá giờ)', 'late');
+      }else if(limit > 0 && !inLimit){
+        showStatus('Sai', 'bad');
+      }else{
+        beepBad();
+        showStatus('SAI!', 'bad');
+      }
+    }
 
     updateLiveStats();
     nextQuestion();
@@ -725,7 +707,7 @@
 
     finalMsgEl.style.display = 'block';
     finalMsgEl.innerHTML = `
-      <div><b>${escapeHtml(name)}</b> đã đạt <b>${pct}%</b> - Kết quả: <b>${escapeHtml(level)}</b> </div>
+      <div><b>${escapeHtml(name)}</b> đã đạt <b>${pct}%</b> - Kết quả: <b>${escapeHtml(level)}</b></div>
       <div>Trong phạm vi các bảng cửu chương: <b>${escapeHtml(tablesText)}</b></div>
       <div style="margin-top:6px">💡 ${escapeHtml(msg)}</div>
       <div class="muted" style="margin-top:6px">
@@ -741,25 +723,19 @@
       const timeTxt = `${h.timeSec}s`;
 
       const statusTag = (limit > 0 && !h.inLimit)
-  ? '<span class="tag warn">QUÁ GIỜ (Không tính điểm)</span>'
-  : '<span class="tag ok">TRONG GIỜ</span>';
+        ? '<span class="tag warn">QUÁ GIỜ (Không tính điểm)</span>'
+        : '<span class="tag ok">TRONG GIỜ</span>';
 
+      const isOver = (limit > 0 && !h.inLimit);
+      const userIsCorrect = (h.user !== null && Number.isFinite(h.user) && h.user === h.correct);
 
-     // KQ:
-// - Nếu quá giờ (khi có giới hạn): vẫn hiển thị đúng/sai theo câu trả lời,
-//   nhưng nếu đúng thì ghi "ĐÚNG (Không tính điểm)"
-// - Nếu trong giờ: hiển thị ĐÚNG/SAI bình thường
-const isOver = (limit > 0 && !h.inLimit);
-const userIsCorrect = (h.user !== null && Number.isFinite(h.user) && h.user === h.correct);
-
-const kqTag = isOver
-  ? (userIsCorrect
-      ? '<span class="tag ok">ĐÚNG (Không tính điểm)</span>'
-      : '<span class="tag bad">SAI</span>')
-  : (h.okInTime
-      ? '<span class="tag ok">ĐÚNG</span>'
-      : '<span class="tag bad">SAI</span>');
-
+      const kqTag = isOver
+        ? (userIsCorrect
+            ? '<span class="tag ok">ĐÚNG (Không tính điểm)</span>'
+            : '<span class="tag bad">SAI</span>')
+        : (h.okInTime
+            ? '<span class="tag ok">ĐÚNG</span>'
+            : '<span class="tag bad">SAI</span>');
 
       const tr = document.createElement('tr');
       tr.innerHTML = `
@@ -861,8 +837,6 @@ const kqTag = isOver
   });
 
   btnStop.addEventListener('click', () => finishSession(false));
-  btnConfirm.addEventListener('click', submitAnswer);
-  btnNext.addEventListener('click', submitAnswer);
 
   answerEl.addEventListener('keydown', (e) => {
     if(e.key === 'Enter'){
@@ -907,15 +881,11 @@ const kqTag = isOver
 
     btnStart.disabled = false;
     btnStop.disabled = true;
-    btnConfirm.disabled = true;
-    btnNext.disabled = true;
     answerEl.disabled = true;
   });
 
   // init
   btnStop.disabled = true;
-  btnConfirm.disabled = true;
-  btnNext.disabled = true;
   answerEl.disabled = true;
   timeLeftEl.textContent = '--:--';
   qLeftEl.textContent = '--';
