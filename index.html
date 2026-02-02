@@ -3,53 +3,92 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>Luyện bảng cửu chương (Nhân/Chia) + Hẹn giờ</title>
+  <title>Luyện bảng cửu chương</title>
   <style>
     :root{
       --bg:#0b1020; --muted:#9fb0ff; --text:#e8ecff;
       --btn:#5b7cfa; --btn2:#33406b; --ok:#2ecc71; --bad:#ff5b6e;
       --line: rgba(255,255,255,.12);
+      --chip: rgba(255,255,255,.06);
+      --chipOn: rgba(91,124,250,.22);
+      --chipBorder: rgba(255,255,255,.14);
+      --chipBorderOn: rgba(91,124,250,.65);
     }
     *{box-sizing:border-box}
     body{
       margin:0; font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial;
       background: radial-gradient(1200px 600px at 20% 0%, #182454 0%, var(--bg) 55%);
       color:var(--text); min-height:100vh; display:flex; align-items:center; justify-content:center;
-      padding:24px;
+      padding:16px;
     }
     .app{
-      width:min(1000px, 100%); background:linear-gradient(180deg, rgba(255,255,255,.06), rgba(255,255,255,.02));
-      border:1px solid var(--line); border-radius:18px; padding:18px;
+      width:min(1000px, 100%);
+      background:linear-gradient(180deg, rgba(255,255,255,.06), rgba(255,255,255,.02));
+      border:1px solid var(--line); border-radius:18px; padding:16px;
       box-shadow: 0 18px 60px rgba(0,0,0,.35);
     }
-    h1{margin:0 0 12px; font-size:20px}
-    .grid{display:grid; grid-template-columns: 1.15fr .85fr; gap:14px}
+    h1{margin:0 0 10px; font-size:20px}
+    .grid{display:grid; grid-template-columns: 1.12fr .88fr; gap:12px}
     @media (max-width:820px){ .grid{grid-template-columns:1fr} }
-
     .card{
-      background:rgba(0,0,0,.18); border:1px solid var(--line); border-radius:16px; padding:14px;
+      background:rgba(0,0,0,.18);
+      border:1px solid var(--line);
+      border-radius:16px;
+      padding:14px;
     }
     .row{display:flex; gap:10px; flex-wrap:wrap; align-items:center}
     .muted{color:var(--muted); font-size:13px}
-    .checks{
-      display:grid; grid-template-columns: repeat(4, minmax(0,1fr)); gap:10px; margin-top:10px;
+    .pill{
+      display:inline-flex; align-items:center; gap:8px; padding:8px 10px; border-radius:999px;
+      background:rgba(255,255,255,.05); border:1px solid var(--line);
+      font-size:13px; white-space:nowrap;
     }
-    label.cb{
-      display:flex; align-items:center; gap:8px; padding:10px 10px; border-radius:12px;
-      background:rgba(255,255,255,.05); border:1px solid var(--line); cursor:pointer;
-      user-select:none;
-    }
-    label.cb input{ transform: scale(1.15); }
 
+    /* Table buttons (2..9) */
+    .tablesLine{
+      margin-top:6px;
+      padding:10px 12px;
+      border-radius:14px;
+      border:1px solid var(--line);
+      background:rgba(255,255,255,.04);
+      font-weight:800;
+    }
+    .tablesLine b{color:#fff}
+    .tablesWrap{
+      display:flex; flex-wrap:wrap; gap:10px; margin-top:10px;
+    }
+    label.tableBtn{
+      display:inline-flex; align-items:center; justify-content:center;
+      min-width:92px;
+      padding:12px 12px;
+      border-radius:14px;
+      background:var(--chip);
+      border:1px solid var(--chipBorder);
+      cursor:pointer; user-select:none;
+      font-weight:900;
+      -webkit-tap-highlight-color: transparent;
+    }
+    label.tableBtn input{
+      position:absolute; opacity:0; width:1px; height:1px; pointer-events:none;
+    }
+    label.tableBtn.on{
+      background:var(--chipOn);
+      border-color:var(--chipBorderOn);
+      box-shadow: 0 0 0 4px rgba(91,124,250,.14);
+    }
+
+    /* Controls */
     .controls{
       display:grid; grid-template-columns: 1fr 1fr; gap:10px; margin-top:12px;
     }
     @media (max-width:520px){ .controls{grid-template-columns:1fr} }
     .selectWrap{
-      background:rgba(255,255,255,.05); border:1px solid var(--line); border-radius:12px;
+      background:rgba(255,255,255,.05);
+      border:1px solid var(--line);
+      border-radius:12px;
       padding:10px;
     }
-    .selectWrap .lbl{font-size:12px; color:var(--muted); margin-bottom:6px}
+    .selectWrap .lbl{font-size:12px; color:var(--muted); margin-bottom:6px; font-weight:800}
     select{
       width:100%; padding:10px 10px; border-radius:10px;
       border:1px solid var(--line); background:rgba(0,0,0,.25); color:var(--text);
@@ -57,15 +96,26 @@
     }
     select:focus{ border-color: rgba(91,124,250,.8); box-shadow:0 0 0 4px rgba(91,124,250,.18); }
 
+    .bar{
+      height:10px; border-radius:999px; border:1px solid var(--line); overflow:hidden;
+      background:rgba(0,0,0,.20);
+    }
+    .bar > div{
+      height:100%; width:0%;
+      background: linear-gradient(90deg, rgba(91,124,250,.95), rgba(46,204,113,.85));
+    }
+
+    /* Buttons */
     .btns{display:flex; gap:10px; flex-wrap:wrap; margin-top:12px}
     button{
-      border:0; cursor:pointer; padding:10px 14px; border-radius:12px; font-weight:700;
+      border:0; cursor:pointer; padding:10px 14px; border-radius:12px; font-weight:900;
       color:white; background:var(--btn2);
     }
     button.primary{ background:var(--btn); }
     button.danger{ background:#d94b57; }
     button:disabled{ opacity:.5; cursor:not-allowed; }
 
+    /* Quiz */
     .quiz{display:flex; flex-direction:column; gap:10px;}
     .problem{
       font-size:42px; letter-spacing:.5px; text-align:center;
@@ -80,19 +130,37 @@
       outline:none;
     }
     input[type="number"]:focus{ border-color: rgba(91,124,250,.8); box-shadow:0 0 0 4px rgba(91,124,250,.18); }
-
-    .pill{
-      display:inline-flex; align-items:center; gap:8px; padding:8px 10px; border-radius:999px;
-      background:rgba(255,255,255,.05); border:1px solid var(--line); font-size:13px;
-    }
-
     .status{ text-align:center; min-height:22px; font-weight:900; letter-spacing:.3px; }
     .status.ok{ color:var(--ok); }
     .status.bad{ color:var(--bad); }
 
+    /* Keypad */
+    .keypad{
+      margin-top:8px;
+      display:grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap:10px;
+    }
+    .key{
+      padding:14px 0;
+      border-radius:14px;
+      border:1px solid var(--line);
+      background:rgba(255,255,255,.06);
+      color:var(--text);
+      font-size:18px;
+      font-weight:900;
+      cursor:pointer;
+      -webkit-tap-highlight-color: transparent;
+    }
+    .key:active{ transform: scale(0.98); }
+    .key.secondary{ background:rgba(255,255,255,.04); }
+    .key.ok{ background: rgba(46,204,113,.18); border-color: rgba(46,204,113,.35); }
+    .key.bad{ background: rgba(255,91,110,.14); border-color: rgba(255,91,110,.35); }
+
+    /* Results table */
     table{width:100%; border-collapse:collapse; font-size:14px}
     th, td{ padding:10px 8px; border-bottom:1px solid var(--line); text-align:left; vertical-align:top}
-    th{ color:var(--muted); font-weight:800 }
+    th{ color:var(--muted); font-weight:900 }
     .right{ text-align:right }
     .center{ text-align:center }
     .tag{
@@ -103,40 +171,37 @@
     .tag.bad{ color:var(--bad); border-color: rgba(255,91,110,.35) }
 
     .footerNote{margin-top:10px; font-size:12px; color:var(--muted)}
-    .bar{
-      height:10px; border-radius:999px; border:1px solid var(--line); overflow:hidden;
-      background:rgba(0,0,0,.20);
-    }
-    .bar > div{
-      height:100%; width:0%;
-      background: linear-gradient(90deg, rgba(91,124,250,.95), rgba(46,204,113,.85));
-    }
   </style>
 </head>
 <body>
   <div class="app">
-    <h1>ÔN TẬP - Bảng Cửu chương (HÀ TRƯƠNG CÁT NGỌC)</h1>
+    <h1>App luyện bảng cửu chương (Nhân/Chia)</h1>
 
     <div class="grid">
       <!-- LEFT -->
       <div class="card">
         <div class="row" style="justify-content:space-between">
-          <div class="muted">Chọn bảng (2 → 9), thời gian và chế độ</div>
-          <div class="row">
-            <div class="pill"><span>Đã làm:</span> <b id="countDone">0</b></div>
-            <div class="pill"><span>Đúng:</span> <b id="countOK">0</b></div>
-            <div class="pill"><span>Sai:</span> <b id="countBad">0</b></div>
-            <div class="pill"><span>%:</span> <b id="livePct">0%</b></div>
-            <div class="pill"><span>Còn:</span> <b id="timeLeft">--:--</b></div>
+          <div class="muted" style="font-weight:800">Chọn bảng để luyện</div>
+          <div class="pill">
+            <span>Âm thanh:</span>
+            <label style="display:flex; gap:6px; align-items:center; cursor:pointer">
+              <input type="checkbox" id="soundToggle" checked />
+              <span>Bật</span>
+            </label>
           </div>
         </div>
 
-        <div class="checks" id="checks"></div>
+        <!-- Selected tables line -->
+        <div class="tablesLine" id="selectedLine">Các bảng đã chọn: <b>2, 3, 4, 5, 6, 7, 8, 9</b></div>
+
+        <!-- Table buttons -->
+        <div class="tablesWrap" id="tablesWrap"></div>
 
         <div class="controls">
           <div class="selectWrap">
-            <div class="lbl">Thời gian</div>
+            <div class="lbl">Thời gian tổng</div>
             <select id="timeSelect">
+              <option value="3">3 phút</option>
               <option value="5">5 phút</option>
               <option value="10">10 phút</option>
               <option value="15">15 phút</option>
@@ -152,20 +217,27 @@
               <option value="div">Chỉ chia</option>
             </select>
           </div>
-        </div>
 
-        <div class="row" style="margin-top:10px; justify-content:space-between; align-items:center">
-          <div class="pill">
-            <span>Âm thanh:</span>
-            <label style="display:flex; gap:6px; align-items:center; cursor:pointer">
-              <input type="checkbox" id="soundToggle" checked />
-              <span>Bật</span>
-            </label>
+          <div class="selectWrap">
+            <div class="lbl">Giới hạn mỗi câu</div>
+            <select id="qLimitSelect">
+              <option value="3">3 giây</option>
+              <option value="5">5 giây</option>
+              <option value="7" selected>7 giây</option>
+              <option value="9">9 giây</option>
+            </select>
           </div>
 
-          <div style="flex:1; min-width:220px; margin-left:10px">
-            <div class="muted" style="margin-bottom:6px">Tiến độ thời gian</div>
+          <div class="selectWrap">
+            <div class="lbl">Tiến độ thời gian</div>
             <div class="bar"><div id="timeBar"></div></div>
+            <div class="row" style="margin-top:8px; justify-content:flex-start">
+              <div class="pill"><span>Đã làm:</span> <b id="countDone">0</b></div>
+              <div class="pill"><span>Đúng:</span> <b id="countOK">0</b></div>
+              <div class="pill"><span>Sai:</span> <b id="countBad">0</b></div>
+              <div class="pill"><span>%:</span> <b id="livePct">0%</b></div>
+              <div class="pill"><span>Còn:</span> <b id="timeLeft">--:--</b></div>
+            </div>
           </div>
         </div>
 
@@ -177,7 +249,7 @@
         </div>
 
         <div class="footerNote">
-          Nhập xong bấm <b>Enter</b> để qua câu tiếp theo. Hết giờ sẽ tự dừng và hiện kết quả.
+          Mỗi câu có giới hạn theo lựa chọn (3/5/7/9s). Hết thời gian câu sẽ tính sai (timeout) và tự qua câu khác.
         </div>
 
         <div id="resultBox" style="display:none; margin-top:14px">
@@ -209,6 +281,7 @@
         <div class="row" style="justify-content:space-between">
           <div class="pill"><span>Trạng thái:</span> <b id="stateLabel">Chưa bắt đầu</b></div>
           <div class="pill"><span>Chế độ:</span> <b id="modeLabel">—</b></div>
+          <div class="pill"><span>Câu:</span> <b id="qLeft">--</b></div>
         </div>
 
         <div class="problem" id="problem">Chọn bảng và nhấn “Bắt đầu”</div>
@@ -218,9 +291,28 @@
           <button id="btnConfirm" class="primary" disabled>Xác nhận</button>
         </div>
 
+        <!-- Keypad: 1..9 + 0 + backspace + clear + OK -->
+        <div class="keypad" id="keypad" aria-label="Bàn phím số">
+          <button class="key" data-k="1" type="button">1</button>
+          <button class="key" data-k="2" type="button">2</button>
+          <button class="key" data-k="3" type="button">3</button>
+          <button class="key" data-k="4" type="button">4</button>
+          <button class="key" data-k="5" type="button">5</button>
+          <button class="key" data-k="6" type="button">6</button>
+          <button class="key" data-k="7" type="button">7</button>
+          <button class="key" data-k="8" type="button">8</button>
+          <button class="key" data-k="9" type="button">9</button>
+
+          <button class="key secondary" data-action="clear" type="button">Xóa</button>
+          <button class="key" data-k="0" type="button">0</button>
+          <button class="key secondary" data-action="back" type="button">←</button>
+
+          <button class="key ok" style="grid-column:1 / span 3" data-action="ok" type="button">OK</button>
+        </div>
+
         <div id="status" class="status"></div>
         <div class="muted" style="text-align:center">
-          Phạm vi: trong các bảng đã chọn (k x n với k = 1..10) — phép chia luôn ra số nguyên.
+          Nhấn OK hoặc Enter để qua câu tiếp theo.
         </div>
       </div>
     </div>
@@ -229,12 +321,15 @@
 <script>
 (() => {
   // ---------- UI ----------
-  const checksWrap = document.getElementById('checks');
+  const tablesWrap = document.getElementById('tablesWrap');
+  const selectedLine = document.getElementById('selectedLine');
+
   const btnStart = document.getElementById('btnStart');
   const btnStop = document.getElementById('btnStop');
   const btnReset = document.getElementById('btnReset');
   const btnNext = document.getElementById('btnNext');
   const btnConfirm = document.getElementById('btnConfirm');
+
   const problemEl = document.getElementById('problem');
   const answerEl = document.getElementById('answer');
   const statusEl = document.getElementById('status');
@@ -253,48 +348,77 @@
   const totalOKEl = document.getElementById('totalOK');
   const percentEl = document.getElementById('percent');
 
-  const timeSelect = document.getElementById('timeSelect'); // minutes 5/10/15/20
-  const modeSelect = document.getElementById('modeSelect'); // mix/mul/div
+  const timeSelect = document.getElementById('timeSelect');     // minutes
+  const modeSelect = document.getElementById('modeSelect');     // mix/mul/div
+  const qLimitSelect = document.getElementById('qLimitSelect'); // 3/5/7/9 seconds
   const soundToggle = document.getElementById('soundToggle');
 
   const stateLabel = document.getElementById('stateLabel');
   const modeLabel = document.getElementById('modeLabel');
+  const qLeftEl = document.getElementById('qLeft');
 
-  // ---------- Build checkboxes 2..9 ----------
-  const tableChecks = [];
+  const keypad = document.getElementById('keypad');
+
+  // ---------- Build table buttons 2..9 ----------
+  const tableItems = []; // {n, input, label}
   for (let n = 2; n <= 9; n++) {
-    const id = `t${n}`;
     const label = document.createElement('label');
-    label.className = 'cb';
-    label.innerHTML = `<input type="checkbox" id="${id}" value="${n}" checked /> <span>Bảng ${n}</span>`;
-    checksWrap.appendChild(label);
-    tableChecks.push(label.querySelector('input'));
+    label.className = 'tableBtn on';
+    label.innerHTML = `<input type="checkbox" value="${n}" checked /><span>Bảng ${n}</span>`;
+    const input = label.querySelector('input');
+
+    label.addEventListener('click', (e) => {
+      e.preventDefault(); // prevent label default
+      if (input.disabled) return;
+      input.checked = !input.checked;
+      syncTableButtons();
+    });
+
+    tableItems.push({ n, input, label });
+    tablesWrap.appendChild(label);
+  }
+
+  function selectedTables() {
+    return tableItems.filter(x => x.input.checked).map(x => x.n);
+  }
+
+  function syncTableButtons() {
+    for (const item of tableItems) {
+      item.label.classList.toggle('on', item.input.checked);
+    }
+    const sel = selectedTables();
+    selectedLine.innerHTML = sel.length
+      ? `Các bảng đã chọn: <b>${sel.join(', ')}</b>`
+      : `Các bảng đã chọn: <b>(chưa chọn bảng nào)</b>`;
   }
 
   // ---------- State ----------
   let running = false;
   let current = null;
   let history = [];
-
-  // live counters
   let okCount = 0;
   let badCount = 0;
 
-  // timer
+  // session timer
   let totalSeconds = 0;
   let secondsLeft = 0;
   let timerId = null;
 
-  // ---------- Sound ----------
-  let audioCtx = null;
+  // question timer
+  let qSecondsLeft = 0;
+  let qTimerId = null;
 
-  function ensureAudio() {
-    if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+  function getQuestionLimit() {
+    const v = Number(qLimitSelect.value);
+    return [3,5,7,9].includes(v) ? v : 7;
   }
 
-  // short patterns
-  function beepOk() {
-    if (!soundToggle.checked) return;
+  // ---------- Sound ----------
+  let audioCtx = null;
+  function ensureAudio(){ if(!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)(); }
+
+  function beepOk(){
+    if(!soundToggle.checked) return;
     ensureAudio();
     const now = audioCtx.currentTime;
     const osc = audioCtx.createOscillator();
@@ -309,8 +433,8 @@
     osc.start(now); osc.stop(now + 0.16);
   }
 
-  function beepBad() {
-    if (!soundToggle.checked) return;
+  function beepBad(){
+    if(!soundToggle.checked) return;
     ensureAudio();
     const now = audioCtx.currentTime;
     const osc = audioCtx.createOscillator();
@@ -325,12 +449,10 @@
     osc.start(now); osc.stop(now + 0.20);
   }
 
-  // distinct "time up" sound: 3 descending beeps
-  function beepTimeUp() {
-    if (!soundToggle.checked) return;
+  function beepTimeUp(){
+    if(!soundToggle.checked) return;
     ensureAudio();
     const now = audioCtx.currentTime;
-
     const playOne = (t, freq, dur=0.14) => {
       const osc = audioCtx.createOscillator();
       const gain = audioCtx.createGain();
@@ -342,38 +464,40 @@
       osc.connect(gain); gain.connect(audioCtx.destination);
       osc.start(t); osc.stop(t + dur + 0.02);
     };
-
     playOne(now + 0.00, 780);
     playOne(now + 0.18, 520);
     playOne(now + 0.36, 320);
   }
 
   // ---------- Helpers ----------
-  function selectedTables() {
-    return tableChecks.filter(c => c.checked).map(c => Number(c.value));
+  function randInt(min,max){ return Math.floor(Math.random()*(max-min+1))+min; }
+  function escapeHtml(s){
+    return String(s).replace(/[&<>"']/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[m]));
   }
-  function randInt(min, max) { return Math.floor(Math.random() * (max - min + 1)) + min; }
-  function escapeHtml(s) {
-    return String(s).replace(/[&<>"']/g, m => ({
-      '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'
-    }[m]));
-  }
-  function fmtTime(sec) {
-    const m = Math.floor(sec / 60);
-    const s = sec % 60;
+  function fmtTime(sec){
+    const m = Math.floor(sec/60), s = sec%60;
     return `${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}`;
   }
 
-  function updateLiveStats() {
+  function updateLiveStats(){
     const done = history.length;
-    const pct = done === 0 ? 0 : Math.round((okCount / done) * 100);
+    const pct = done === 0 ? 0 : Math.round((okCount/done)*100);
     countDoneEl.textContent = String(done);
     countOKEl.textContent = String(okCount);
     countBadEl.textContent = String(badCount);
     livePctEl.textContent = `${pct}%`;
   }
 
-  function setRunningUI(on) {
+  function showStatus(msg, kind){
+    statusEl.textContent = msg || '';
+    statusEl.className = 'status' + (kind ? ` ${kind}` : '');
+    if(msg){
+      clearTimeout(showStatus._t);
+      showStatus._t = setTimeout(() => showStatus('', ''), 650);
+    }
+  }
+
+  function setRunningUI(on){
     running = on;
     btnStart.disabled = on;
     btnStop.disabled = !on;
@@ -382,68 +506,97 @@
     answerEl.disabled = !on;
 
     // lock settings while running
-    tableChecks.forEach(c => c.disabled = on);
+    tableItems.forEach(x => x.input.disabled = on);
     timeSelect.disabled = on;
     modeSelect.disabled = on;
+    qLimitSelect.disabled = on;
 
-    if (on) {
-      stateLabel.textContent = 'Đang chạy';
-      resultBox.style.display = 'none';
-    } else {
-      stateLabel.textContent = 'Đã dừng';
-    }
+    stateLabel.textContent = on ? 'Đang chạy' : (history.length ? 'Đã dừng' : 'Chưa bắt đầu');
+
+    if(on) resultBox.style.display = 'none';
+
+    // keep visual selection correct
+    syncTableButtons();
   }
 
-  function showStatus(msg, kind) {
-    statusEl.textContent = msg || '';
-    statusEl.className = 'status' + (kind ? ` ${kind}` : '');
-    if (msg) {
-      clearTimeout(showStatus._t);
-      showStatus._t = setTimeout(() => showStatus('', ''), 650);
-    }
-  }
-
-  function getMode() {
-    const m = modeSelect.value; // mix/mul/div
-    if (m === 'mul') return {key:'mul', label:'Chỉ nhân'};
-    if (m === 'div') return {key:'div', label:'Chỉ chia'};
+  function getMode(){
+    const m = modeSelect.value;
+    if(m === 'mul') return {key:'mul', label:'Chỉ nhân'};
+    if(m === 'div') return {key:'div', label:'Chỉ chia'};
     return {key:'mix', label:'Nhân & chia (ngẫu nhiên)'};
   }
 
-  function generateQuestion(tables, modeKey) {
+  // Create question in selected tables
+  function generateQuestion(tables, modeKey){
     const ts = tables.length ? tables : [2,3,4,5,6,7,8,9];
 
     let opType;
-    if (modeKey === 'mul') opType = 'mul';
-    else if (modeKey === 'div') opType = 'div';
+    if(modeKey === 'mul') opType = 'mul';
+    else if(modeKey === 'div') opType = 'div';
     else opType = (Math.random() < 0.55 ? 'mul' : 'div');
 
-    const n = ts[randInt(0, ts.length - 1)];
+    const n = ts[randInt(0, ts.length-1)];
     const k = randInt(1, 10);
 
-    if (opType === 'mul') {
+    if(opType === 'mul'){
       let a = n, b = k;
-      if (Math.random() < 0.5) { const tmp = a; a = b; b = tmp; }
-      return { op:'×', text:`${a} × ${b} = ?`, correct: a * b };
-    } else {
-      const product = n * k;
-      const divisor = (Math.random() < 0.5) ? n : k; // luôn chia hết
-      const correct = product / divisor;
-      return { op:'÷', text:`${product} ÷ ${divisor} = ?`, correct };
+      if(Math.random() < 0.5){ const t=a; a=b; b=t; }
+      return { text:`${a} × ${b} = ?`, correct: a*b };
+    }else{
+      const product = n*k;
+      const divisor = (Math.random()<0.5) ? n : k; // always integer
+      return { text:`${product} ÷ ${divisor} = ?`, correct: product/divisor };
     }
   }
 
-  function nextQuestion() {
+  // ---------- Question timer ----------
+  function stopQuestionTimer(){ if(qTimerId){ clearInterval(qTimerId); qTimerId = null; } }
+  function updateQuestionTimerUI(){ qLeftEl.textContent = running ? `${String(qSecondsLeft).padStart(2,'0')}s` : '--'; }
+
+  function startQuestionTimer(){
+    stopQuestionTimer();
+    qSecondsLeft = getQuestionLimit();
+    updateQuestionTimerUI();
+
+    qTimerId = setInterval(() => {
+      if(!running) return;
+      qSecondsLeft = Math.max(0, qSecondsLeft - 1);
+      updateQuestionTimerUI();
+      if(qSecondsLeft <= 0) submitTimeout();
+    }, 1000);
+  }
+
+  function nextQuestion(){
     const tables = selectedTables();
     const mode = getMode();
     current = generateQuestion(tables, mode.key);
     problemEl.textContent = current.text;
     answerEl.value = '';
     answerEl.focus();
+    startQuestionTimer();
   }
 
-  function submitAnswer() {
-    if (!running || !current) return;
+  function submitTimeout(){
+    if(!running || !current) return;
+    stopQuestionTimer();
+
+    history.push({
+      text: current.text.replace('= ?', '=').trim(),
+      correct: current.correct,
+      user: null,
+      ok: false,
+      timeout: true
+    });
+
+    badCount++;
+    updateLiveStats();
+    showStatus('Hết giờ câu!', 'bad');
+    nextQuestion();
+  }
+
+  function submitAnswer(){
+    if(!running || !current) return;
+    stopQuestionTimer();
 
     const raw = answerEl.value;
     const user = raw === '' ? null : Number(raw);
@@ -452,40 +605,65 @@
     history.push({
       text: current.text.replace('= ?', '=').trim(),
       correct: current.correct,
-      user: user,
-      ok: ok
+      user,
+      ok,
+      timeout: false
     });
 
-    if (ok) {
-      okCount++;
-      beepOk();
-      showStatus('ĐÚNG!', 'ok');
-    } else {
-      badCount++;
-      beepBad();
-      showStatus('SAI!', 'bad');
-    }
+    if(ok){ okCount++; beepOk(); showStatus('ĐÚNG!', 'ok'); }
+    else { badCount++; beepBad(); showStatus('SAI!', 'bad'); }
 
     updateLiveStats();
     nextQuestion();
   }
 
-  function renderResults() {
+  // ---------- Session timer ----------
+  function stopTimer(){ if(timerId){ clearInterval(timerId); timerId = null; } }
+
+  function updateTimerUI(){
+    timeLeftEl.textContent = fmtTime(secondsLeft);
+    if(totalSeconds > 0){
+      const used = totalSeconds - secondsLeft;
+      const pct = Math.min(100, Math.max(0, (used/totalSeconds)*100));
+      timeBarEl.style.width = pct.toFixed(2) + '%';
+    } else {
+      timeBarEl.style.width = '0%';
+    }
+  }
+
+  function startTimer(minutes){
+    stopTimer();
+    totalSeconds = Math.min(20, Math.max(3, Number(minutes))) * 60; // clamp 3..20
+    secondsLeft = totalSeconds;
+    updateTimerUI();
+
+    timerId = setInterval(() => {
+      if(!running) return;
+      secondsLeft = Math.max(0, secondsLeft - 1);
+      updateTimerUI();
+      if(secondsLeft <= 0) finishSession(true);
+    }, 1000);
+  }
+
+  function renderResults(){
     const total = history.length;
-    const ok = okCount;
-    const pct = total === 0 ? 0 : Math.round((ok / total) * 100);
+    const pct = total === 0 ? 0 : Math.round((okCount/total)*100);
 
     totalQEl.textContent = String(total);
-    totalOKEl.textContent = String(ok);
+    totalOKEl.textContent = String(okCount);
     percentEl.textContent = `${pct}%`;
 
     resultBody.innerHTML = '';
     history.forEach((h, idx) => {
+      const ans = (h.user === null)
+        ? (h.timeout ? '<span class="muted">timeout</span>' : '<span class="muted">bỏ trống</span>')
+        : h.user;
+
       const tr = document.createElement('tr');
       tr.innerHTML = `
         <td>${idx + 1}</td>
         <td>${escapeHtml(h.text)}</td>
-        <td class="right">${h.user === null ? '<span class="muted">bỏ trống</span>' : h.user}</td>
+        <td class="right">${ans}</td>
         <td class="right">${h.correct}</td>
         <td class="center">${
           h.ok ? '<span class="tag ok">ĐÚNG</span>' : '<span class="tag bad">SAI</span>'
@@ -497,71 +675,85 @@
     resultBox.style.display = 'block';
   }
 
-  // ---------- Timer ----------
-  function stopTimer() {
-    if (timerId) { clearInterval(timerId); timerId = null; }
-  }
+  function finishSession(timeUp=false){
+    if(!running) return;
 
-  function updateTimerUI() {
-    timeLeftEl.textContent = fmtTime(secondsLeft);
-    if (totalSeconds > 0) {
-      const used = totalSeconds - secondsLeft;
-      const pct = Math.min(100, Math.max(0, (used / totalSeconds) * 100));
-      timeBarEl.style.width = pct.toFixed(2) + '%';
-    } else {
-      timeBarEl.style.width = '0%';
-    }
-  }
-
-  function startTimer(minutes) {
     stopTimer();
-    totalSeconds = Math.min(20, Math.max(5, Number(minutes))) * 60; // clamp 5..20
-    secondsLeft = totalSeconds;
-    updateTimerUI();
-
-    timerId = setInterval(() => {
-      if (!running) return;
-      secondsLeft = Math.max(0, secondsLeft - 1);
-      updateTimerUI();
-
-      if (secondsLeft <= 0) finishSession(true);
-    }, 1000);
-  }
-
-  // ---------- Finish / reset ----------
-  function finishSession(timeUp=false) {
-    if (!running) return;
-    stopTimer();
+    stopQuestionTimer();
     setRunningUI(false);
 
     problemEl.textContent = timeUp
-      ? 'HẾT GIỜ! Xem bảng kết quả bên trái.'
-      : 'Đã kết thúc. Xem bảng kết quả bên trái.';
+      ? 'HẾT GIỜ! Xem kết quả bên trái.'
+      : 'Đã kết thúc. Xem kết quả bên trái.';
+
     answerEl.value = '';
     renderResults();
 
-    if (timeUp) {
-      beepTimeUp();          // ÂM HẾT GIỜ RIÊNG
+    if(timeUp){
+      beepTimeUp();
       showStatus('Hết giờ!', 'bad');
     }
   }
 
+  // ---------- Keypad ----------
+  function appendDigit(d){
+    if(answerEl.disabled) return;
+    const cur = answerEl.value || '';
+    // prevent too long (e.g., 3 digits not needed, but allow up to 3 anyway)
+    if(cur.length >= 3) return;
+    // avoid leading zeros like "00"
+    if(cur === '0') {
+      answerEl.value = String(d);
+    } else {
+      answerEl.value = cur + String(d);
+    }
+    answerEl.focus();
+  }
+
+  function backspace(){
+    if(answerEl.disabled) return;
+    const cur = answerEl.value || '';
+    answerEl.value = cur.slice(0, -1);
+    answerEl.focus();
+  }
+
+  function clearAll(){
+    if(answerEl.disabled) return;
+    answerEl.value = '';
+    answerEl.focus();
+  }
+
+  keypad.addEventListener('click', (e) => {
+    const btn = e.target.closest('button');
+    if(!btn) return;
+
+    const k = btn.getAttribute('data-k');
+    const action = btn.getAttribute('data-action');
+
+    if(k !== null && k !== undefined){
+      appendDigit(k);
+      return;
+    }
+    if(action === 'back') backspace();
+    else if(action === 'clear') clearAll();
+    else if(action === 'ok') submitAnswer();
+  });
+
   // ---------- Events ----------
   btnStart.addEventListener('click', () => {
     const tables = selectedTables();
-    if (tables.length === 0) {
+    if(tables.length === 0){
       showStatus('Bạn chưa chọn bảng nào.', 'bad');
       return;
     }
 
-    // reset session
     history = [];
     current = null;
     okCount = 0;
     badCount = 0;
     updateLiveStats();
-    statusEl.textContent = '';
     resultBox.style.display = 'none';
+    statusEl.textContent = '';
 
     const mode = getMode();
     modeLabel.textContent = mode.label;
@@ -572,10 +764,24 @@
   });
 
   btnStop.addEventListener('click', () => finishSession(false));
+  btnConfirm.addEventListener('click', submitAnswer);
+  btnNext.addEventListener('click', submitAnswer);
+
+  answerEl.addEventListener('keydown', (e) => {
+    if(e.key === 'Enter'){
+      e.preventDefault();
+      submitAnswer();
+    }
+  });
 
   btnReset.addEventListener('click', () => {
     stopTimer();
-    setRunningUI(false);
+    stopQuestionTimer();
+
+    // unlock settings
+    tableItems.forEach(x => x.input.disabled = false);
+
+    running = false;
     current = null;
     history = [];
     okCount = 0;
@@ -585,34 +791,40 @@
     problemEl.textContent = 'Chọn bảng và nhấn “Bắt đầu”';
     answerEl.value = '';
     statusEl.textContent = '';
-    resultBox.style.display = 'none';
 
-    tableChecks.forEach(c => { c.disabled = false; c.checked = true; });
-    timeSelect.disabled = false; timeSelect.value = '5';
+    // reset selections
+    tableItems.forEach(x => x.input.checked = true);
+    syncTableButtons();
+
+    timeSelect.disabled = false; timeSelect.value = '3';
     modeSelect.disabled = false; modeSelect.value = 'mix';
+    qLimitSelect.disabled = false; qLimitSelect.value = '7';
+
     modeLabel.textContent = '—';
     stateLabel.textContent = 'Chưa bắt đầu';
-
-    totalSeconds = 0; secondsLeft = 0;
     timeLeftEl.textContent = '--:--';
     timeBarEl.style.width = '0%';
+    qLeftEl.textContent = '--';
+
+    resultBox.style.display = 'none';
+
+    btnStart.disabled = false;
+    btnStop.disabled = true;
+    btnConfirm.disabled = true;
+    btnNext.disabled = true;
+    answerEl.disabled = true;
   });
 
-  btnConfirm.addEventListener('click', submitAnswer);
-  btnNext.addEventListener('click', submitAnswer);
-
-  answerEl.addEventListener('keydown', (e) => {
-    if (e.key === 'Enter') {
-      e.preventDefault();
-      submitAnswer();
-    }
-  });
-
-  // initial state
-  setRunningUI(false);
+  // init
+  btnStop.disabled = true;
+  btnConfirm.disabled = true;
+  btnNext.disabled = true;
+  answerEl.disabled = true;
+  timeLeftEl.textContent = '--:--';
+  qLeftEl.textContent = '--';
   stateLabel.textContent = 'Chưa bắt đầu';
   modeLabel.textContent = '—';
-  timeLeftEl.textContent = '--:--';
+  syncTableButtons();
   updateLiveStats();
 })();
 </script>
