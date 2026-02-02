@@ -118,14 +118,36 @@
       padding:18px 10px; border-radius:16px;
       background:rgba(255,255,255,.05); border:1px solid var(--line);
     }
-    .answerRow{display:flex; gap:10px; justify-content:center; flex-wrap:wrap; align-items:center}
+
+    .answerRow{
+      display:flex; gap:10px; justify-content:center; flex-wrap:wrap; align-items:center
+    }
+
+    /* ✅ Ô nhập kết quả to hơn + số to hơn */
     input[type="number"]{
-      width:220px; max-width:100%;
-      padding:12px 12px; border-radius:12px; border:1px solid var(--line);
-      background:rgba(0,0,0,.25); color:var(--text); font-size:18px;
+      width:260px; max-width:100%;
+      padding:14px 14px;
+      height:52px;
+      border-radius:12px; border:1px solid var(--line);
+      background:rgba(0,0,0,.25);
+      color:var(--text);
+      font-size:24px;
+      font-weight:900;
       outline:none;
     }
-    input[type="number"]:focus{ border-color: rgba(91,124,250,.8); box-shadow:0 0 0 4px rgba(91,124,250,.18); }
+    input[type="number"]:focus{
+      border-color: rgba(91,124,250,.8);
+      box-shadow:0 0 0 4px rgba(91,124,250,.18);
+    }
+
+    /* ✅ Nút OK kéo dài gấp đôi, dễ bấm */
+    #btnOkTop{
+      min-width:140px;
+      height:52px;
+      padding:12px 22px;
+      font-size:18px;
+      font-weight:1000;
+    }
 
     .status{ text-align:center; min-height:22px; font-weight:900; letter-spacing:.3px; }
     .status.ok{ color:var(--ok); }
@@ -251,46 +273,31 @@
       margin-top:8px;
     }
 
-/* ====== FIX ÔN TẬP: nền trắng + dễ nhìn ====== */
-.modal{
-  background: rgba(0,0,0,.35); /* nền tối nhẹ phía sau */
-}
+    /* ====== FIX ÔN TẬP: nền trắng + dễ nhìn ====== */
+    .modal{ background: rgba(0,0,0,.35); }
+    .modalCard{
+      background:#ffffff !important;
+      border-color: rgba(0,0,0,.15) !important;
+    }
+    .modalTitle{ color:#111 !important; }
+    #reviewMeta{ color:#444 !important; }
+    .reviewBlock{
+      background:#ffffff !important;
+      border-color: rgba(0,0,0,.12) !important;
+    }
+    .reviewBlock h3{ color:#111 !important; }
 
-/* modalCard: bỏ nền trong suốt/gradient -> nền trắng */
-.modalCard{
-  background:#ffffff !important;
-  border-color: rgba(0,0,0,.15) !important;
-}
-
-/* chữ trong ôn tập chuyển sang đen */
-.modalTitle{ color:#111 !important; }
-#reviewMeta{ color:#444 !important; }
-
-/* từng khối bảng trong ôn tập nền trắng */
-.reviewBlock{
-  background:#ffffff !important;
-  border-color: rgba(0,0,0,.12) !important;
-}
-.reviewBlock h3{
-  color:#111 !important;
-}
-
-/* BỎ SỐ THỨ TỰ: list kiểu không số */
-.reviewList{
-  list-style: none !important;
-  padding-left: 0 !important;
-  margin: 0 !important;
-  color:#111 !important;
-  font-weight: 800 !important;
-  line-height: 1.6 !important;
-}
-.reviewList li{
-  padding: 2px 0;
-}
-.reviewHint{
-  color:#555 !important;
-}
-
+    /* BỎ SỐ THỨ TỰ: list kiểu không số */
+    .reviewList{
+      list-style: none !important;
+      padding-left: 0 !important;
+      margin: 0 !important;
+      color:#111 !important;
+      font-weight: 800 !important;
+      line-height: 1.6 !important;
+    }
+    .reviewList li{ padding: 2px 0; }
+    .reviewHint{ color:#555 !important; }
   </style>
 </head>
 <body>
@@ -365,11 +372,6 @@
           </div>
         </div>
 
-        <div class="footerNote">
-          “Giới hạn tính điểm mỗi câu”: nếu trả lời <b>quá thời gian</b> thì vẫn được làm tiếp,
-          nhưng <b>được tính như 01 câu SAI</b> trong kết quả chung.
-        </div>
-
         <div id="resultBox" style="display:none; margin-top:14px">
           <div id="finalMsg" class="finalMsg" style="display:none"></div>
 
@@ -407,23 +409,25 @@
           <div class="pill"><span>Thời gian trả lời mỗi câu:</span> <b id="qLeft">--</b></div>
         </div>
 
-        <!-- ✅ ÔN TẬP đặt phía trên cụm nút Start/Stop/Reset -->
+        <!-- ✅ ÔN TẬP đưa vào cùng hàng với Start/Stop/Reset và nằm cuối hàng -->
         <div class="btns" style="margin-top:10px">
-          <button id="btnReview">ÔN TẬP</button>
-        </div>
-
-        <!-- Cụm nút Start/Stop/Reset -->
-        <div class="btns">
           <button class="primary" id="btnStart">Bắt đầu</button>
           <button class="danger" id="btnStop" disabled>Kết thúc</button>
           <button id="btnReset">Làm lại</button>
+          <button id="btnReview">ÔN TẬP</button>
         </div>
 
         <div class="problem" id="problem">Chọn bảng và nhấn “Bắt đầu”</div>
 
+        <div id="status" class="status"></div>
+
         <div class="answerRow">
           <input id="answer" type="number" inputmode="numeric" placeholder="Nhập kết quả…" disabled />
           <button id="btnOkTop" class="primary" disabled>OK</button>
+        </div>
+
+        <div class="muted" style="text-align:center">
+          Nhấn OK hoặc Enter để qua câu tiếp theo.
         </div>
 
         <div class="keypad" id="keypad" aria-label="Bàn phím số">
@@ -442,9 +446,9 @@
           <button class="key secondary" data-action="back" type="button">←</button>
         </div>
 
-        <div id="status" class="status"></div>
-        <div class="muted" style="text-align:center">
-          Nhấn OK hoặc Enter để qua câu tiếp theo.
+        <div class="footerNote">
+          “Giới hạn tính điểm mỗi câu”: nếu trả lời <b>quá thời gian</b> thì vẫn được làm tiếp,
+          nhưng <b>được tính như 01 câu SAI</b> trong kết quả chung.
         </div>
       </div>
     </div>
@@ -873,7 +877,7 @@
         statusTag = (!h.inLimit)
           ? '<span class="tag warn">QUÁ GIỜ (Không tính điểm)</span>'
           : '<span class="tag ok">TRONG GIỜ</span>';
-      } // limit==0 => ''
+      }
 
       const isOver = (limit > 0 && !h.inLimit);
       const userIsCorrect = (h.user !== null && Number.isFinite(h.user) && h.user === h.correct);
@@ -959,7 +963,7 @@
     const blocks = [];
 
     const pushSection = (title, type) => {
-      blocks.push(`<div class="reviewBlock"><h3>${escapeHtml(title)}</h3><div class="reviewGrid">`); // mở grid
+      blocks.push(`<div class="reviewBlock"><h3>${escapeHtml(title)}</h3><div class="reviewGrid">`);
       for(const n of tables){
         const lines = buildReviewLinesForTable(n, type);
         blocks.push(`
@@ -972,7 +976,7 @@
           </div>
         `);
       }
-      blocks.push(`</div></div>`); // đóng grid + section block
+      blocks.push(`</div></div>`);
     };
 
     if(mode.key === 'mul') pushSection('Ôn tập BẢNG NHÂN', 'mul');
@@ -1076,7 +1080,7 @@
 
   // ✅ Stop: nếu chưa hết giờ => stoppedEarly=true => không đánh giá + thông báo
   btnStop.addEventListener('click', () => {
-    const stoppedEarly = (secondsLeft > 0); // bấm kết thúc trước khi hết giờ
+    const stoppedEarly = (secondsLeft > 0);
     finishSession({ timeUp:false, stoppedEarly });
   });
 
