@@ -13,6 +13,7 @@
       --chipOn: rgba(91,124,250,.22);
       --chipBorder: rgba(255,255,255,.14);
       --chipBorderOn: rgba(91,124,250,.65);
+      --warn:#ffcc66;
     }
     *{box-sizing:border-box}
     body{
@@ -44,7 +45,6 @@
       font-size:13px; white-space:nowrap;
     }
 
-    /* Table buttons (2..9) */
     .tablesLine{
       margin-top:6px;
       padding:10px 12px;
@@ -77,7 +77,6 @@
       box-shadow: 0 0 0 4px rgba(91,124,250,.14);
     }
 
-    /* Controls */
     .controls{
       display:grid; grid-template-columns: 1fr 1fr; gap:10px; margin-top:12px;
     }
@@ -89,12 +88,14 @@
       padding:10px;
     }
     .selectWrap .lbl{font-size:12px; color:var(--muted); margin-bottom:6px; font-weight:800}
-    select{
+    select, input[type="text"]{
       width:100%; padding:10px 10px; border-radius:10px;
       border:1px solid var(--line); background:rgba(0,0,0,.25); color:var(--text);
       outline:none;
     }
-    select:focus{ border-color: rgba(91,124,250,.8); box-shadow:0 0 0 4px rgba(91,124,250,.18); }
+    select:focus, input[type="text"]:focus{
+      border-color: rgba(91,124,250,.8); box-shadow:0 0 0 4px rgba(91,124,250,.18);
+    }
 
     .bar{
       height:10px; border-radius:999px; border:1px solid var(--line); overflow:hidden;
@@ -105,7 +106,6 @@
       background: linear-gradient(90deg, rgba(91,124,250,.95), rgba(46,204,113,.85));
     }
 
-    /* Buttons */
     .btns{display:flex; gap:10px; flex-wrap:wrap; margin-top:12px}
     button{
       border:0; cursor:pointer; padding:10px 14px; border-radius:12px; font-weight:900;
@@ -115,7 +115,6 @@
     button.danger{ background:#d94b57; }
     button:disabled{ opacity:.5; cursor:not-allowed; }
 
-    /* Quiz */
     .quiz{display:flex; flex-direction:column; gap:10px;}
     .problem{
       font-size:42px; letter-spacing:.5px; text-align:center;
@@ -133,8 +132,12 @@
     .status{ text-align:center; min-height:22px; font-weight:900; letter-spacing:.3px; }
     .status.ok{ color:var(--ok); }
     .status.bad{ color:var(--bad); }
+    .status.warn{ color:var(--warn); }
+.status.late{
+  color: #ffcc66; /* vàng nhạt – cùng tone QUÁ GIỜ */
+}
 
-    /* Keypad */
+
     .keypad{
       margin-top:8px;
       display:grid;
@@ -157,7 +160,6 @@
     .key.ok{ background: rgba(46,204,113,.18); border-color: rgba(46,204,113,.35); }
     .key.bad{ background: rgba(255,91,110,.14); border-color: rgba(255,91,110,.35); }
 
-    /* Results table */
     table{width:100%; border-collapse:collapse; font-size:14px}
     th, td{ padding:10px 8px; border-bottom:1px solid var(--line); text-align:left; vertical-align:top}
     th{ color:var(--muted); font-weight:900 }
@@ -169,13 +171,24 @@
     }
     .tag.ok{ color:var(--ok); border-color: rgba(46,204,113,.35) }
     .tag.bad{ color:var(--bad); border-color: rgba(255,91,110,.35) }
+    .tag.warn{ color:var(--warn); border-color: rgba(255,204,102,.45) }
 
     .footerNote{margin-top:10px; font-size:12px; color:var(--muted)}
+    .finalMsg{
+      margin-top:10px;
+      padding:10px 12px;
+      border-radius:14px;
+      border:1px solid var(--line);
+      background:rgba(255,255,255,.04);
+      font-weight:800;
+      line-height:1.45;
+    }
+    .finalMsg b{color:#fff}
   </style>
 </head>
 <body>
   <div class="app">
-    <h1>App luyện bảng cửu chương (Nhân/Chia)</h1>
+    <h1>Ôn luyện Bảng Cửu chương [HÀ TRƯƠNG CÁT NGỌC]</h1>
 
     <div class="grid">
       <!-- LEFT -->
@@ -191,13 +204,15 @@
           </div>
         </div>
 
-        <!-- Selected tables line -->
         <div class="tablesLine" id="selectedLine">Các bảng đã chọn: <b>2, 3, 4, 5, 6, 7, 8, 9</b></div>
-
-        <!-- Table buttons -->
         <div class="tablesWrap" id="tablesWrap"></div>
 
         <div class="controls">
+          <div class="selectWrap">
+            <div class="lbl">Tên học sinh</div>
+            <input id="studentName" type="text" placeholder="Ví dụ: Bạn An" />
+          </div>
+
           <div class="selectWrap">
             <div class="lbl">Thời gian tổng</div>
             <select id="timeSelect">
@@ -213,26 +228,29 @@
             <div class="lbl">Chế độ phép tính</div>
             <select id="modeSelect">
               <option value="mix">Nhân & chia (ngẫu nhiên)</option>
-              <option value="mul">Chỉ nhân</option>
-              <option value="div">Chỉ chia</option>
+              <option value="mul">Luyện phép tính NHÂN</option>
+              <option value="div">Luyện phép tính CHIA</option>
             </select>
           </div>
 
           <div class="selectWrap">
-            <div class="lbl">Giới hạn mỗi câu</div>
+            <div class="lbl">Giới hạn tính điểm mỗi câu</div>
             <select id="qLimitSelect">
+              <option value="0" selected>Không giới hạn</option>
               <option value="3">3 giây</option>
               <option value="5">5 giây</option>
-              <option value="7" selected>7 giây</option>
+              <option value="7">7 giây</option>
               <option value="9">9 giây</option>
             </select>
           </div>
 
-          <div class="selectWrap">
+          <div class="selectWrap" style="grid-column:1 / -1">
             <div class="lbl">Tiến độ thời gian</div>
             <div class="bar"><div id="timeBar"></div></div>
             <div class="row" style="margin-top:8px; justify-content:flex-start">
               <div class="pill"><span>Đã làm:</span> <b id="countDone">0</b></div>
+              <!-- giữ ID cũ để ít đụng code, nhưng đổi nghĩa thành "Trong giờ" -->
+              <div class="pill"><span>Trong giờ:</span> <b id="countScored">0</b></div>
               <div class="pill"><span>Đúng:</span> <b id="countOK">0</b></div>
               <div class="pill"><span>Sai:</span> <b id="countBad">0</b></div>
               <div class="pill"><span>%:</span> <b id="livePct">0%</b></div>
@@ -249,12 +267,17 @@
         </div>
 
         <div class="footerNote">
-          Mỗi câu có giới hạn theo lựa chọn (3/5/7/9s). Hết thời gian câu sẽ tính sai (timeout) và tự qua câu khác.
+          “Giới hạn tính điểm mỗi câu”: nếu trả lời <b>quá thời gian</b> thì vẫn được làm tiếp,
+          nhưng <b>được tính như 01 câu SAI</b> trong kết quả chung.
         </div>
 
         <div id="resultBox" style="display:none; margin-top:14px">
-          <div class="row" style="justify-content:space-between; margin-bottom:10px">
-            <div class="pill"><span>Tổng:</span> <b id="totalQ">0</b></div>
+          <div id="finalMsg" class="finalMsg" style="display:none"></div>
+
+          <div class="row" style="justify-content:space-between; margin:10px 0">
+            <div class="pill"><span>Tổng đã làm:</span> <b id="totalQ">0</b></div>
+            <!-- giữ ID cũ để ít đụng code, nhưng đổi nghĩa thành "Trong giờ" -->
+            <div class="pill"><span>Trong giờ:</span> <b id="totalScored">0</b></div>
             <div class="pill"><span>Đúng:</span> <b id="totalOK">0</b></div>
             <div class="pill"><span>Tỷ lệ:</span> <b id="percent">0%</b></div>
           </div>
@@ -267,7 +290,9 @@
                   <th>Phép tính</th>
                   <th class="right">Bạn trả lời</th>
                   <th class="right">Đáp án</th>
-                  <th class="center" style="width:90px">KQ</th>
+                  <th class="right" style="width:110px">Thời gian</th>
+                  <th class="center" style="width:120px">Trạng thái</th>
+                  <th class="center" style="width:110px">KQ</th>
                 </tr>
               </thead>
               <tbody id="resultBody"></tbody>
@@ -281,7 +306,7 @@
         <div class="row" style="justify-content:space-between">
           <div class="pill"><span>Trạng thái:</span> <b id="stateLabel">Chưa bắt đầu</b></div>
           <div class="pill"><span>Chế độ:</span> <b id="modeLabel">—</b></div>
-          <div class="pill"><span>Câu:</span> <b id="qLeft">--</b></div>
+          <div class="pill"><span>Câu (giới hạn):</span> <b id="qLeft">--</b></div>
         </div>
 
         <div class="problem" id="problem">Chọn bảng và nhấn “Bắt đầu”</div>
@@ -291,7 +316,6 @@
           <button id="btnConfirm" class="primary" disabled>Xác nhận</button>
         </div>
 
-        <!-- Keypad: 1..9 + 0 + backspace + clear + OK -->
         <div class="keypad" id="keypad" aria-label="Bàn phím số">
           <button class="key" data-k="1" type="button">1</button>
           <button class="key" data-k="2" type="button">2</button>
@@ -335,6 +359,7 @@
   const statusEl = document.getElementById('status');
 
   const countDoneEl = document.getElementById('countDone');
+  const countScoredEl = document.getElementById('countScored'); // giờ dùng cho "Trong giờ"
   const countOKEl = document.getElementById('countOK');
   const countBadEl = document.getElementById('countBad');
   const livePctEl = document.getElementById('livePct');
@@ -345,12 +370,16 @@
   const resultBox = document.getElementById('resultBox');
   const resultBody = document.getElementById('resultBody');
   const totalQEl = document.getElementById('totalQ');
+  const totalScoredEl = document.getElementById('totalScored'); // giờ dùng cho "Trong giờ"
   const totalOKEl = document.getElementById('totalOK');
   const percentEl = document.getElementById('percent');
+  const finalMsgEl = document.getElementById('finalMsg');
+
+  const studentNameEl = document.getElementById('studentName');
 
   const timeSelect = document.getElementById('timeSelect');     // minutes
   const modeSelect = document.getElementById('modeSelect');     // mix/mul/div
-  const qLimitSelect = document.getElementById('qLimitSelect'); // 3/5/7/9 seconds
+  const qLimitSelect = document.getElementById('qLimitSelect'); // 0/3/5/7/9 seconds
   const soundToggle = document.getElementById('soundToggle');
 
   const stateLabel = document.getElementById('stateLabel');
@@ -360,7 +389,7 @@
   const keypad = document.getElementById('keypad');
 
   // ---------- Build table buttons 2..9 ----------
-  const tableItems = []; // {n, input, label}
+  const tableItems = [];
   for (let n = 2; n <= 9; n++) {
     const label = document.createElement('label');
     label.className = 'tableBtn on';
@@ -368,7 +397,7 @@
     const input = label.querySelector('input');
 
     label.addEventListener('click', (e) => {
-      e.preventDefault(); // prevent label default
+      e.preventDefault();
       if (input.disabled) return;
       input.checked = !input.checked;
       syncTableButtons();
@@ -383,9 +412,7 @@
   }
 
   function syncTableButtons() {
-    for (const item of tableItems) {
-      item.label.classList.toggle('on', item.input.checked);
-    }
+    for (const item of tableItems) item.label.classList.toggle('on', item.input.checked);
     const sel = selectedTables();
     selectedLine.innerHTML = sel.length
       ? `Các bảng đã chọn: <b>${sel.join(', ')}</b>`
@@ -395,22 +422,25 @@
   // ---------- State ----------
   let running = false;
   let current = null;
+
+  // history item:
+  // { text, correct, user, okInTime, timeSec, inLimit }
   let history = [];
-  let okCount = 0;
-  let badCount = 0;
+  let okCount = 0;      // đúng & trong giờ (hoặc không giới hạn)
+  let badCount = 0;     // sai (bao gồm sai trong giờ + quá giờ)
+  let inTimeCount = 0;  // số câu "trong giờ" (nếu có giới hạn) — để thống kê
 
   // session timer
   let totalSeconds = 0;
   let secondsLeft = 0;
   let timerId = null;
 
-  // question timer
-  let qSecondsLeft = 0;
-  let qTimerId = null;
+  // question timing
+  let qStartMs = 0;
 
   function getQuestionLimit() {
     const v = Number(qLimitSelect.value);
-    return [3,5,7,9].includes(v) ? v : 7;
+    return [0,3,5,7,9].includes(v) ? v : 0;
   }
 
   // ---------- Sound ----------
@@ -478,11 +508,19 @@
     const m = Math.floor(sec/60), s = sec%60;
     return `${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}`;
   }
+  function round1(x){ return Math.round(x*10)/10; }
+
+  // % = đúng (trong giờ) / tổng đã làm
+  function calcPct(){
+    const done = history.length;
+    return done === 0 ? 0 : Math.round((okCount / done) * 100);
+  }
 
   function updateLiveStats(){
     const done = history.length;
-    const pct = done === 0 ? 0 : Math.round((okCount/done)*100);
+    const pct = calcPct();
     countDoneEl.textContent = String(done);
+    countScoredEl.textContent = String(inTimeCount);
     countOKEl.textContent = String(okCount);
     countBadEl.textContent = String(badCount);
     livePctEl.textContent = `${pct}%`;
@@ -493,7 +531,7 @@
     statusEl.className = 'status' + (kind ? ` ${kind}` : '');
     if(msg){
       clearTimeout(showStatus._t);
-      showStatus._t = setTimeout(() => showStatus('', ''), 650);
+      showStatus._t = setTimeout(() => showStatus('', ''), 900);
     }
   }
 
@@ -505,28 +543,25 @@
     btnNext.disabled = !on;
     answerEl.disabled = !on;
 
-    // lock settings while running
     tableItems.forEach(x => x.input.disabled = on);
     timeSelect.disabled = on;
     modeSelect.disabled = on;
     qLimitSelect.disabled = on;
+    studentNameEl.disabled = on;
 
     stateLabel.textContent = on ? 'Đang chạy' : (history.length ? 'Đã dừng' : 'Chưa bắt đầu');
 
     if(on) resultBox.style.display = 'none';
-
-    // keep visual selection correct
     syncTableButtons();
   }
 
   function getMode(){
     const m = modeSelect.value;
-    if(m === 'mul') return {key:'mul', label:'Chỉ nhân'};
-    if(m === 'div') return {key:'div', label:'Chỉ chia'};
+    if(m === 'mul') return {key:'mul', label:'Phép tính NHÂN'};
+    if(m === 'div') return {key:'div', label:'Phép tính CHIA'};
     return {key:'mix', label:'Nhân & chia (ngẫu nhiên)'};
   }
 
-  // Create question in selected tables
   function generateQuestion(tables, modeKey){
     const ts = tables.length ? tables : [2,3,4,5,6,7,8,9];
 
@@ -544,26 +579,15 @@
       return { text:`${a} × ${b} = ?`, correct: a*b };
     }else{
       const product = n*k;
-      const divisor = (Math.random()<0.5) ? n : k; // always integer
+      const divisor = (Math.random()<0.5) ? n : k;
       return { text:`${product} ÷ ${divisor} = ?`, correct: product/divisor };
     }
   }
 
-  // ---------- Question timer ----------
-  function stopQuestionTimer(){ if(qTimerId){ clearInterval(qTimerId); qTimerId = null; } }
-  function updateQuestionTimerUI(){ qLeftEl.textContent = running ? `${String(qSecondsLeft).padStart(2,'0')}s` : '--'; }
-
-  function startQuestionTimer(){
-    stopQuestionTimer();
-    qSecondsLeft = getQuestionLimit();
-    updateQuestionTimerUI();
-
-    qTimerId = setInterval(() => {
-      if(!running) return;
-      qSecondsLeft = Math.max(0, qSecondsLeft - 1);
-      updateQuestionTimerUI();
-      if(qSecondsLeft <= 0) submitTimeout();
-    }, 1000);
+  function updateQuestionTimerUI(){
+    const limit = getQuestionLimit();
+    if(!running){ qLeftEl.textContent = '--'; return; }
+    qLeftEl.textContent = (limit > 0) ? `${limit}s` : '∞';
   }
 
   function nextQuestion(){
@@ -573,48 +597,68 @@
     problemEl.textContent = current.text;
     answerEl.value = '';
     answerEl.focus();
-    startQuestionTimer();
+    qStartMs = performance.now();
+    updateQuestionTimerUI();
   }
 
-  function submitTimeout(){
+  function recordAndMove(userValue){
     if(!running || !current) return;
-    stopQuestionTimer();
 
-    history.push({
-      text: current.text.replace('= ?', '=').trim(),
-      correct: current.correct,
-      user: null,
-      ok: false,
-      timeout: true
-    });
+    const limit = getQuestionLimit();
+    const tSec = round1((performance.now() - qStartMs) / 1000);
+    const inLimit = (limit === 0) ? true : (tSec <= limit);
 
-    badCount++;
-    updateLiveStats();
-    showStatus('Hết giờ câu!', 'bad');
-    nextQuestion();
-  }
+    const user = (userValue === '' || userValue === null || userValue === undefined) ? null : Number(userValue);
+    const isCorrect = (user !== null) && Number.isFinite(user) && (user === current.correct);
 
-  function submitAnswer(){
-    if(!running || !current) return;
-    stopQuestionTimer();
-
-    const raw = answerEl.value;
-    const user = raw === '' ? null : Number(raw);
-    const ok = (user !== null) && Number.isFinite(user) && (user === current.correct);
+    // QUY TẮC:
+    // - Quá giờ: tính như 01 câu SAI (dù đúng)
+    // - Đúng chỉ khi: đúng và trong giờ (hoặc không giới hạn)
+    const okInTime = isCorrect && inLimit;
 
     history.push({
       text: current.text.replace('= ?', '=').trim(),
       correct: current.correct,
       user,
-      ok,
-      timeout: false
+      okInTime,
+      timeSec: tSec,
+      inLimit
     });
 
-    if(ok){ okCount++; beepOk(); showStatus('ĐÚNG!', 'ok'); }
-    else { badCount++; beepBad(); showStatus('SAI!', 'bad'); }
+    // thống kê "Trong giờ" (nếu có giới hạn), còn không giới hạn thì coi như luôn trong giờ
+    if(inLimit) inTimeCount++;
+
+   if(okInTime){
+  okCount++;
+  beepOk();
+  showStatus('ĐÚNG!', 'ok');
+}else{
+  badCount++;
+
+  // Quá giờ nhưng trả lời ĐÚNG
+  if(limit > 0 && !inLimit && isCorrect){
+    showStatus('⏱️ Đúng (đã quá giờ)', 'late');
+
+  }
+  // Quá giờ và SAI
+  else if(limit > 0 && !inLimit){
+    showStatus('Sai', 'bad');
+  }
+  // Trong giờ nhưng SAI
+  else{
+    beepBad();
+    showStatus('SAI!', 'bad');
+  }
+}
+
 
     updateLiveStats();
     nextQuestion();
+  }
+
+  function submitAnswer(){
+    if(!running || !current) return;
+    recordAndMove(answerEl.value);
   }
 
   // ---------- Session timer ----------
@@ -633,7 +677,7 @@
 
   function startTimer(minutes){
     stopTimer();
-    totalSeconds = Math.min(20, Math.max(3, Number(minutes))) * 60; // clamp 3..20
+    totalSeconds = Math.min(20, Math.max(3, Number(minutes))) * 60;
     secondsLeft = totalSeconds;
     updateTimerUI();
 
@@ -645,19 +689,77 @@
     }, 1000);
   }
 
+  function getEncouragement(pct){
+    if(pct < 75){
+      return { level:'Chưa đạt', msg:'Cần tập trung và ôn luyện nhiều hơn' };
+    }
+    if(pct >= 75 && pct < 80){
+      return { level:'Cơ bản', msg:'Cố gắng hơn nữa nhé' };
+    }
+    if(pct >= 80 && pct <= 90){
+      return { level:'Khá', msg:'Cố gắng thêm chút nữa' };
+    }
+    if(pct > 90 && pct <= 95){
+      return { level:'Tốt', msg:'Gần thuộc hết rồi, cố lên, cố lên' };
+    }
+    if(pct > 95 && pct < 100){
+      return { level:'Xuất sắc', msg:'Cố gắng thêm chút nữa thôi là thuộc 100% rồi, Cố lên, Cố lên' };
+    }
+    return { level:'Tuyệt vời', msg:'Bạn đã thuộc 100% rồi! Tuyệt vời lắm!' };
+  }
+
   function renderResults(){
     const total = history.length;
-    const pct = total === 0 ? 0 : Math.round((okCount/total)*100);
+    const pct = calcPct();
 
     totalQEl.textContent = String(total);
+    totalScoredEl.textContent = String(inTimeCount);
     totalOKEl.textContent = String(okCount);
     percentEl.textContent = `${pct}%`;
 
+    const nameRaw = (studentNameEl.value || '').trim();
+    const name = nameRaw ? nameRaw : 'Bạn';
+    const tables = selectedTables();
+    const tablesText = tables.length ? tables.join(', ') : '2, 3, 4, 5, 6, 7, 8, 9';
+    const { level, msg } = getEncouragement(pct);
+
+    finalMsgEl.style.display = 'block';
+    finalMsgEl.innerHTML = `
+      <div><b>${escapeHtml(name)}</b> đã đạt <b>${pct}%</b> - Kết quả: <b>${escapeHtml(level)}</b> </div>
+      <div>Trong phạm vi các bảng cửu chương: <b>${escapeHtml(tablesText)}</b></div>
+      <div style="margin-top:6px">💡 ${escapeHtml(msg)}</div>
+      <div class="muted" style="margin-top:6px">
+        Lưu ý: Nếu có giới hạn, câu <b>quá giờ</b> sẽ <b>tính như 01 câu SAI</b> trong kết quả chung.
+      </div>
+    `;
+
     resultBody.innerHTML = '';
+    const limit = getQuestionLimit();
+
     history.forEach((h, idx) => {
-      const ans = (h.user === null)
-        ? (h.timeout ? '<span class="muted">timeout</span>' : '<span class="muted">bỏ trống</span>')
-        : h.user;
+      const ans = (h.user === null) ? '<span class="muted">bỏ trống</span>' : h.user;
+      const timeTxt = `${h.timeSec}s`;
+
+      const statusTag = (limit > 0 && !h.inLimit)
+  ? '<span class="tag warn">QUÁ GIỜ (Không tính điểm)</span>'
+  : '<span class="tag ok">TRONG GIỜ</span>';
+
+
+     // KQ:
+// - Nếu quá giờ (khi có giới hạn): vẫn hiển thị đúng/sai theo câu trả lời,
+//   nhưng nếu đúng thì ghi "ĐÚNG (Không tính điểm)"
+// - Nếu trong giờ: hiển thị ĐÚNG/SAI bình thường
+const isOver = (limit > 0 && !h.inLimit);
+const userIsCorrect = (h.user !== null && Number.isFinite(h.user) && h.user === h.correct);
+
+const kqTag = isOver
+  ? (userIsCorrect
+      ? '<span class="tag ok">ĐÚNG (Không tính điểm)</span>'
+      : '<span class="tag bad">SAI</span>')
+  : (h.okInTime
+      ? '<span class="tag ok">ĐÚNG</span>'
+      : '<span class="tag bad">SAI</span>');
+
 
       const tr = document.createElement('tr');
       tr.innerHTML = `
@@ -665,9 +767,9 @@
         <td>${escapeHtml(h.text)}</td>
         <td class="right">${ans}</td>
         <td class="right">${h.correct}</td>
-        <td class="center">${
-          h.ok ? '<span class="tag ok">ĐÚNG</span>' : '<span class="tag bad">SAI</span>'
-        }</td>
+        <td class="right">${timeTxt}</td>
+        <td class="center">${statusTag}</td>
+        <td class="center">${kqTag}</td>
       `;
       resultBody.appendChild(tr);
     });
@@ -679,12 +781,11 @@
     if(!running) return;
 
     stopTimer();
-    stopQuestionTimer();
     setRunningUI(false);
 
     problemEl.textContent = timeUp
-      ? 'HẾT GIỜ! Xem kết quả bên trái.'
-      : 'Đã kết thúc. Xem kết quả bên trái.';
+      ? 'HẾT GIỜ! Xem kết quả ở bảng thống kê.'
+      : 'Đã kết thúc. Xem kết quả ở bảng thống kê.';
 
     answerEl.value = '';
     renderResults();
@@ -699,24 +800,17 @@
   function appendDigit(d){
     if(answerEl.disabled) return;
     const cur = answerEl.value || '';
-    // prevent too long (e.g., 3 digits not needed, but allow up to 3 anyway)
     if(cur.length >= 3) return;
-    // avoid leading zeros like "00"
-    if(cur === '0') {
-      answerEl.value = String(d);
-    } else {
-      answerEl.value = cur + String(d);
-    }
+    if(cur === '0') answerEl.value = String(d);
+    else answerEl.value = cur + String(d);
     answerEl.focus();
   }
-
   function backspace(){
     if(answerEl.disabled) return;
     const cur = answerEl.value || '';
     answerEl.value = cur.slice(0, -1);
     answerEl.focus();
   }
-
   function clearAll(){
     if(answerEl.disabled) return;
     answerEl.value = '';
@@ -751,8 +845,11 @@
     current = null;
     okCount = 0;
     badCount = 0;
+    inTimeCount = 0;
+
     updateLiveStats();
     resultBox.style.display = 'none';
+    finalMsgEl.style.display = 'none';
     statusEl.textContent = '';
 
     const mode = getMode();
@@ -776,9 +873,7 @@
 
   btnReset.addEventListener('click', () => {
     stopTimer();
-    stopQuestionTimer();
 
-    // unlock settings
     tableItems.forEach(x => x.input.disabled = false);
 
     running = false;
@@ -786,19 +881,20 @@
     history = [];
     okCount = 0;
     badCount = 0;
+    inTimeCount = 0;
     updateLiveStats();
 
     problemEl.textContent = 'Chọn bảng và nhấn “Bắt đầu”';
     answerEl.value = '';
     statusEl.textContent = '';
 
-    // reset selections
     tableItems.forEach(x => x.input.checked = true);
     syncTableButtons();
 
+    studentNameEl.disabled = false; studentNameEl.value = '';
     timeSelect.disabled = false; timeSelect.value = '3';
     modeSelect.disabled = false; modeSelect.value = 'mix';
-    qLimitSelect.disabled = false; qLimitSelect.value = '7';
+    qLimitSelect.disabled = false; qLimitSelect.value = '0';
 
     modeLabel.textContent = '—';
     stateLabel.textContent = 'Chưa bắt đầu';
@@ -807,6 +903,7 @@
     qLeftEl.textContent = '--';
 
     resultBox.style.display = 'none';
+    finalMsgEl.style.display = 'none';
 
     btnStart.disabled = false;
     btnStop.disabled = true;
